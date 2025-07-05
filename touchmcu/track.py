@@ -83,7 +83,7 @@ def create_vu(parent, trackid):
     # This is a lua header that declare on which track the vu meter is
     header=f"""
 --------------------------------------------------------------------------------
--- Change that variable to match the track index (0-7 for track 1-8)
+-- Change that variable to match the track index (0-15 for track 1-16)
 local track = {trackid}
 --------------------------------------------------------------------------------
 

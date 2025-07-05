@@ -50,7 +50,8 @@ def main(argv):
 
         # ====== DOCUMENT ==============================================================
 
-        doc = Document(1024, 768)
+        TRACK_COUNT = 16
+        doc = Document(1024 + 102 * (TRACK_COUNT - 8), 768)
 
         doc.root["script"] = load_all_scripts(
             "table_utils.lua",
@@ -77,21 +78,23 @@ def main(argv):
             )
         )
 
-        for i in range(8):
+        for i in range(TRACK_COUNT):
             tr = create_track(track_page, overlay, i)
-            tr["frame"].move(2+102*i, 0)
+            tr["frame"].move(2 + 102 * i, 0)
+
+        base_x = 820 + 102 * (TRACK_COUNT - 8)
 
         timecode = create_timecode(track_page, overlay)
-        timecode["frame"].move(820, 0)
+        timecode["frame"].move(base_x, 0)
 
         assign = create_assignment(track_page, overlay)
-        assign["frame"].move(820, 106)
+        assign["frame"].move(base_x, 106)
 
         banks = create_fader_banks(track_page, overlay)
-        banks["frame"].move(820, 342)
+        banks["frame"].move(base_x, 342)
 
         master = create_master_fader(track_page)
-        master["frame"].move(922, 342)
+        master["frame"].move(base_x + 102, 342)
 
         # ====== TRANSPORT =============================================================
 
