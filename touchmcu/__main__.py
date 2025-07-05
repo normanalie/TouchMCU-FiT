@@ -4,13 +4,14 @@ import getopt
 import os
 
 from touchmcu.master import create_assignment, create_fader_banks, create_master_fader, create_timecode
-from touchmcu.touchosc import Rect
+from touchmcu.touchosc import Rect, ButtonType
 from touchmcu.touchosc.controls import Pager, Page
 from touchmcu.touchosc.document import Document
 from touchmcu.touchosc.midi import MidiNotes
 
 from touchmcu import list_overlays, load_all_scripts, load_overlay
 from touchmcu.track import create_track
+from touchmcu.controls import create_button
 from touchmcu.transport import create_actions, create_function_select, create_global_view, create_jog, create_transport, create_transport_assignment, create_transport_timecode
 
 
@@ -130,6 +131,33 @@ def main(argv):
 
         jog = create_jog(transport_page, overlay)
         jog["frame"].move(678, 242)
+
+        # ====== NOTES ========================================================
+        notes_page = Page(
+            parent=pager,
+            name="notes_page",
+            tabLabel="Notes",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        NOTE_W = 100
+        NOTE_H = 40
+        for i in range(128):
+            x = 2 + (i % 16) * (NOTE_W + 12)
+            y = 2 + (i // 16) * (NOTE_H + 8)
+            create_button(
+                notes_page,
+                name=f"note_{i}",
+                note=i,
+                frame=Rect(x=x, y=y, w=NOTE_W, h=NOTE_H),
+                label=str(i),
+                type=ButtonType.MOMENTARY
+            )
 
 
         # ==============================================================================

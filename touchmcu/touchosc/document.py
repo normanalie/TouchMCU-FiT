@@ -32,3 +32,4 @@ class Document:
 
             with open(path, 'bw+') as fp:
                 fp.write(data)
+
