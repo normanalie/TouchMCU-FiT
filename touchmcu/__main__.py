@@ -4,14 +4,14 @@ import getopt
 import os
 
 from touchmcu.master import create_assignment, create_fader_banks, create_master_fader, create_timecode
-from touchmcu.touchosc import Rect, ButtonType
-from touchmcu.touchosc.controls import Pager, Page
+from touchmcu.touchosc import Rect, ButtonType, ColorEnum, OutlineStyle
+from touchmcu.touchosc.controls import Pager, Page, Label
 from touchmcu.touchosc.document import Document
 from touchmcu.touchosc.midi import MidiNotes
 
 from touchmcu import list_overlays, load_all_scripts, load_overlay
 from touchmcu.track import create_track
-from touchmcu.controls import create_button
+from touchmcu.controls import create_button, create_cc_fader
 from touchmcu.transport import create_actions, create_function_select, create_global_view, create_jog, create_transport, create_transport_assignment, create_transport_timecode
 
 
@@ -158,6 +158,48 @@ def main(argv):
                 label=str(i),
                 type=ButtonType.MOMENTARY
             )
+
+        # ====== CC FADERS =====================================================
+        cc_page = Page(
+            parent=pager,
+            name="cc_page",
+            tabLabel="CC",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        CC_W = 60
+        CC_H = 350
+        cc_numbers = (
+            list(range(16, 32)) +
+            list(range(72, 81)) +
+            [83, 86] +
+            list(range(88, 96)) +
+            list(range(116, 128))
+        )
+
+        for idx, cc in enumerate(cc_numbers):
+            x = 2 + (idx % 16) * (CC_W + 12)
+            y = 2 + (idx // 16) * (CC_H + 50)
+            create_cc_fader(
+                cc_page,
+                name=f"cc_{cc}",
+                cc=cc,
+                frame=Rect(x=x, y=y, w=CC_W, h=CC_H)
+            )
+            lb = Label(
+                parent=cc_page,
+                name=f"lb_cc_{cc}",
+                frame=Rect(x=x, y=y + CC_H + 2, w=CC_W, h=20),
+                color=ColorEnum.GREY.value,
+                outline=True,
+                outlineStyle=OutlineStyle.EDGES
+            )
+            lb["text"] = str(cc)
 
 
         # ==============================================================================

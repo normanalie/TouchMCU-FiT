@@ -1,5 +1,5 @@
 import copy
-from touchmcu.midi import midi_encoder, midi_fader, midi_note_bang
+from touchmcu.midi import midi_encoder, midi_fader, midi_note_bang, midi_cc_fader
 
 from touchmcu.touchosc import ButtonType, CursorDisplay, Shape, Rect, Color, ColorEnum
 from touchmcu.touchosc.controls import Button, Encoder, Fader, Label
@@ -158,4 +158,9 @@ def create_fader(parent, name, frame=Rect(x=0, y=0, w=60, h=350), color=ColorEnu
     if note is not None and ch is not None:
         fd.messages.extend(midi_fader(note, ch))
 
+    return fd
+
+def create_cc_fader(parent, name, cc, ch=0, frame=Rect(x=0, y=0, w=60, h=350), color=ColorEnum.GREY):
+    fd = create_fader(parent, name, frame=frame, color=color)
+    fd.messages.extend(midi_cc_fader(cc, ch))
     return fd

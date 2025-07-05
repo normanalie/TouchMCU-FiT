@@ -127,6 +127,62 @@ def midi_led_ring(cc):
 
     return [lr]
 
+def midi_cc_fader(cc, ch, send=True, receive=True):
+
+    result = []
+
+    if send:
+        msg = MidiMessage()
+        msg.receive = False
+        msg.triggers["x"] = Condition.ANY
+        msg.type = MidiMessageType.CONTROL_CHANGE
+        msg.channel = ch
+        msg.data1 = cc
+        msg.data2 = 0
+        msg.values.append({
+            "type": MessageValues.Type.CONSTANT,
+            "key": ""
+        })
+        msg.values.append({
+            "type": MessageValues.Type.CONSTANT,
+            "key": ""
+        })
+        msg.values.append({
+            "type": MessageValues.Type.VALUE,
+            "key": "x",
+            "min": 0,
+            "max": 127
+        })
+
+        result.append(msg)
+
+    if receive:
+        msg = MidiMessage()
+        msg.send = False
+        msg.triggers["x"] = Condition.ANY
+        msg.type = MidiMessageType.CONTROL_CHANGE
+        msg.channel = ch
+        msg.data1 = cc
+        msg.data2 = 0
+        msg.values.append({
+            "type": MessageValues.Type.CONSTANT,
+            "key": ""
+        })
+        msg.values.append({
+            "type": MessageValues.Type.CONSTANT,
+            "key": ""
+        })
+        msg.values.append({
+            "type": MessageValues.Type.VALUE,
+            "key": "x",
+            "min": 0,
+            "max": 127
+        })
+
+        result.append(msg)
+
+    return result
+
 def midi_fader(note, ch, send=True, receive=True):
 
     result = []
