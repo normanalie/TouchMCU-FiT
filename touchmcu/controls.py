@@ -165,3 +165,7 @@ def create_cc_fader(parent, name, cc, ch=0, frame=Rect(x=0, y=0, w=60, h=350), c
     fd = create_fader(parent, name, frame=frame, color=color)
     fd.messages.extend(midi_cc_fader(cc, ch))
     return fd
+
+def create_cc_encoder(parent, name, cc, frame=Rect(x=0, y=0, w=100, h=100), color=ColorEnum.GREY):
+    enc = create_encoder(parent, name, frame=frame, color=color, cc=cc)
+    return enc

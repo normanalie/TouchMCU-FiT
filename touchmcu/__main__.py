@@ -11,7 +11,7 @@ from touchmcu.touchosc.midi import MidiNotes
 
 from touchmcu import list_overlays, load_all_scripts, load_overlay
 from touchmcu.track import create_track
-from touchmcu.controls import create_button, create_cc_fader
+from touchmcu.controls import create_button, create_cc_fader, create_cc_encoder
 from touchmcu.transport import create_actions, create_function_select, create_global_view, create_jog, create_transport, create_transport_assignment, create_transport_timecode
 
 
@@ -221,6 +221,47 @@ def main(argv):
                 parent=cc_page,
                 name=f"lb_cc_{cc}",
                 frame=Rect(x=x, y=y + CC_H + 2, w=CC_W, h=20),
+                color=ColorEnum.GREY.value,
+                outline=True,
+                outlineStyle=OutlineStyle.EDGES
+            )
+            lb["text"] = str(cc)
+
+        # ====== CC JOGS ======================================================
+        jogs_page = Page(
+            parent=pager,
+            name="jog_page",
+            tabLabel="Jogs",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        JOG_W = 120
+        JOG_H = 120
+        jog_numbers = (
+            list(range(72, 81)) +
+            [86] +
+            list(range(88, 96)) +
+            list(range(116, 128))
+        )
+
+        for idx, cc in enumerate(jog_numbers):
+            x = 2 + (idx % 8) * (JOG_W + 12)
+            y = 2 + (idx // 8) * (JOG_H + 50)
+            create_cc_encoder(
+                jogs_page,
+                name=f"jog_{cc}",
+                cc=cc,
+                frame=Rect(x=x, y=y, w=JOG_W, h=JOG_H)
+            )
+            lb = Label(
+                parent=jogs_page,
+                name=f"lb_jog_{cc}",
+                frame=Rect(x=x, y=y + JOG_H + 2, w=JOG_W, h=20),
                 color=ColorEnum.GREY.value,
                 outline=True,
                 outlineStyle=OutlineStyle.EDGES
