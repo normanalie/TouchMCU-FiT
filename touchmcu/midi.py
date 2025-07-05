@@ -3,7 +3,7 @@ from touchmcu.touchosc.midi import MidiMessageType
 from touchmcu.touchosc.values import MessageValues
 from touchmcu.touchosc.messages import MidiMessage
 
-def midi_note_bang(note, send=True, receive=True):
+def midi_note_bang(note, ch=0, send=True, receive=True):
 
     result = []
 
@@ -12,6 +12,7 @@ def midi_note_bang(note, send=True, receive=True):
         pressed.receive = False
         pressed.triggers["touch"] = Condition.ANY
         pressed.type = MidiMessageType.NOTE_ON
+        pressed.channel = ch
         pressed.data1 = note
         pressed.data2 = 127
         pressed.values.append({
@@ -33,6 +34,7 @@ def midi_note_bang(note, send=True, receive=True):
         pressed_off.receive = False
         pressed_off.triggers["touch"] = Condition.ANY
         pressed_off.type = MidiMessageType.NOTE_OFF
+        pressed_off.channel = ch
         pressed_off.data1 = note
         pressed_off.data2 = 0
         pressed_off.values.append({
@@ -55,6 +57,7 @@ def midi_note_bang(note, send=True, receive=True):
         update.send = False
         update.triggers["x"] = Condition.ANY
         update.type = MidiMessageType.NOTE_ON
+        update.channel = ch
         update.data1 = note
         update.data2 = 127
         update.values.append({

@@ -33,7 +33,8 @@ def create_button(parent,
                          label1=None,
                          label2=None,
                          textSize=14,
-                         textSize2=12):
+                         textSize2=12,
+                         ch=0):
 
     btn = Button(
         parent=parent,
@@ -44,7 +45,7 @@ def create_button(parent,
         buttonType=type
     )
 
-    btn.messages.extend(midi_note_bang(note, send=True, receive=(type==ButtonType.TOGGLE_PRESS)))
+    btn.messages.extend(midi_note_bang(note, ch=ch, send=True, receive=(type==ButtonType.TOGGLE_PRESS)))
 
     if label is not None:
         lb = Label(

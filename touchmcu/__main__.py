@@ -42,7 +42,7 @@ def main(argv):
     else:
         todo = [overlay_name]
 
-    os.makedirs("./output")
+    os.makedirs("./output", exist_ok=True)
 
     for name in todo:
         # ====== OVERLAY ===============================================================
@@ -136,7 +136,7 @@ def main(argv):
         notes_page = Page(
             parent=pager,
             name="notes_page",
-            tabLabel="Notes",
+            tabLabel="Notes Ch1",
             frame=Rect(
                 x=0,
                 y=pager["tabbarSize"],
@@ -152,8 +152,34 @@ def main(argv):
             y = 2 + (i // 16) * (NOTE_H + 8)
             create_button(
                 notes_page,
-                name=f"note_{i}",
+                name=f"note_ch1_{i}",
                 note=i,
+                ch=0,
+                frame=Rect(x=x, y=y, w=NOTE_W, h=NOTE_H),
+                label=str(i),
+                type=ButtonType.MOMENTARY
+            )
+
+        notes2_page = Page(
+            parent=pager,
+            name="notes_page_ch2",
+            tabLabel="Notes Ch2",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        for i in range(128):
+            x = 2 + (i % 16) * (NOTE_W + 12)
+            y = 2 + (i // 16) * (NOTE_H + 8)
+            create_button(
+                notes2_page,
+                name=f"note_ch2_{i}",
+                note=i,
+                ch=1,
                 frame=Rect(x=x, y=y, w=NOTE_W, h=NOTE_H),
                 label=str(i),
                 type=ButtonType.MOMENTARY
