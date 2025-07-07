@@ -4,13 +4,14 @@ import getopt
 import os
 
 from touchmcu.master import create_assignment, create_fader_banks, create_master_fader, create_timecode
-from touchmcu.touchosc import Rect
-from touchmcu.touchosc.controls import Pager, Page
+from touchmcu.touchosc import Rect, ButtonType, ColorEnum, OutlineStyle
+from touchmcu.touchosc.controls import Pager, Page, Label
 from touchmcu.touchosc.document import Document
 from touchmcu.touchosc.midi import MidiNotes
 
 from touchmcu import list_overlays, load_all_scripts, load_overlay
 from touchmcu.track import create_track
+from touchmcu.controls import create_button, create_cc_fader, create_cc_encoder
 from touchmcu.transport import create_actions, create_function_select, create_global_view, create_jog, create_transport, create_transport_assignment, create_transport_timecode
 
 
@@ -41,7 +42,7 @@ def main(argv):
     else:
         todo = [overlay_name]
 
-    os.makedirs("./output")
+    os.makedirs("./output", exist_ok=True)
 
     for name in todo:
         # ====== OVERLAY ===============================================================
@@ -50,7 +51,8 @@ def main(argv):
 
         # ====== DOCUMENT ==============================================================
 
-        doc = Document(1024, 768)
+        TRACK_COUNT = 16
+        doc = Document(1024 + 102 * (TRACK_COUNT - 8), 768)
 
         doc.root["script"] = load_all_scripts(
             "table_utils.lua",
@@ -77,21 +79,23 @@ def main(argv):
             )
         )
 
-        for i in range(8):
+        for i in range(TRACK_COUNT):
             tr = create_track(track_page, overlay, i)
-            tr["frame"].move(2+102*i, 0)
+            tr["frame"].move(2 + 102 * i, 0)
+
+        base_x = 820 + 102 * (TRACK_COUNT - 8)
 
         timecode = create_timecode(track_page, overlay)
-        timecode["frame"].move(820, 0)
+        timecode["frame"].move(base_x, 0)
 
         assign = create_assignment(track_page, overlay)
-        assign["frame"].move(820, 106)
+        assign["frame"].move(base_x, 106)
 
         banks = create_fader_banks(track_page, overlay)
-        banks["frame"].move(820, 342)
+        banks["frame"].move(base_x, 342)
 
         master = create_master_fader(track_page)
-        master["frame"].move(922, 342)
+        master["frame"].move(base_x + 102, 342)
 
         # ====== TRANSPORT =============================================================
 
@@ -127,6 +131,142 @@ def main(argv):
 
         jog = create_jog(transport_page, overlay)
         jog["frame"].move(678, 242)
+
+        # ====== NOTES ========================================================
+        notes_page = Page(
+            parent=pager,
+            name="notes_page",
+            tabLabel="Notes Ch1",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        NOTE_W = 100
+        NOTE_H = 40
+        for i in range(128):
+            x = 2 + (i % 16) * (NOTE_W + 12)
+            y = 2 + (i // 16) * (NOTE_H + 8)
+            create_button(
+                notes_page,
+                name=f"note_ch1_{i}",
+                note=i,
+                ch=0,
+                frame=Rect(x=x, y=y, w=NOTE_W, h=NOTE_H),
+                label=str(i),
+                type=ButtonType.MOMENTARY
+            )
+
+        notes2_page = Page(
+            parent=pager,
+            name="notes_page_ch2",
+            tabLabel="Notes Ch2",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        for i in range(128):
+            x = 2 + (i % 16) * (NOTE_W + 12)
+            y = 2 + (i // 16) * (NOTE_H + 8)
+            create_button(
+                notes2_page,
+                name=f"note_ch2_{i}",
+                note=i,
+                ch=1,
+                frame=Rect(x=x, y=y, w=NOTE_W, h=NOTE_H),
+                label=str(i),
+                type=ButtonType.MOMENTARY
+            )
+
+        # ====== CC FADERS =====================================================
+        cc_page = Page(
+            parent=pager,
+            name="cc_page",
+            tabLabel="CC",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        CC_W = 60
+        CC_H = 350
+        cc_numbers = (
+            list(range(16, 32)) +
+            list(range(72, 81)) +
+            [83, 86] +
+            list(range(88, 96)) +
+            list(range(116, 128))
+        )
+
+        for idx, cc in enumerate(cc_numbers):
+            x = 2 + (idx % 16) * (CC_W + 12)
+            y = 2 + (idx // 16) * (CC_H + 50)
+            create_cc_fader(
+                cc_page,
+                name=f"cc_{cc}",
+                cc=cc,
+                frame=Rect(x=x, y=y, w=CC_W, h=CC_H)
+            )
+            lb = Label(
+                parent=cc_page,
+                name=f"lb_cc_{cc}",
+                frame=Rect(x=x, y=y + CC_H + 2, w=CC_W, h=20),
+                color=ColorEnum.GREY.value,
+                outline=True,
+                outlineStyle=OutlineStyle.EDGES
+            )
+            lb["text"] = str(cc)
+
+        # ====== CC JOGS ======================================================
+        jogs_page = Page(
+            parent=pager,
+            name="jog_page",
+            tabLabel="Jogs",
+            frame=Rect(
+                x=0,
+                y=pager["tabbarSize"],
+                w=pager["frame"]["w"],
+                h=pager["frame"]["h"] - pager["tabbarSize"]
+            )
+        )
+
+        JOG_W = 120
+        JOG_H = 120
+        jog_numbers = (
+            list(range(72, 81)) +
+            [86] +
+            list(range(88, 96)) +
+            list(range(116, 128))
+        )
+
+        for idx, cc in enumerate(jog_numbers):
+            x = 2 + (idx % 8) * (JOG_W + 12)
+            y = 2 + (idx // 8) * (JOG_H + 50)
+            create_cc_encoder(
+                jogs_page,
+                name=f"jog_{cc}",
+                cc=cc,
+                frame=Rect(x=x, y=y, w=JOG_W, h=JOG_H)
+            )
+            lb = Label(
+                parent=jogs_page,
+                name=f"lb_jog_{cc}",
+                frame=Rect(x=x, y=y + JOG_H + 2, w=JOG_W, h=20),
+                color=ColorEnum.GREY.value,
+                outline=True,
+                outlineStyle=OutlineStyle.EDGES
+            )
+            lb["text"] = str(cc)
 
 
         # ==============================================================================

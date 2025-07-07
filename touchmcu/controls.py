@@ -1,5 +1,5 @@
 import copy
-from touchmcu.midi import midi_encoder, midi_fader, midi_note_bang
+from touchmcu.midi import midi_encoder, midi_fader, midi_note_bang, midi_cc_fader
 
 from touchmcu.touchosc import ButtonType, CursorDisplay, Shape, Rect, Color, ColorEnum
 from touchmcu.touchosc.controls import Button, Encoder, Fader, Label
@@ -33,7 +33,8 @@ def create_button(parent,
                          label1=None,
                          label2=None,
                          textSize=14,
-                         textSize2=12):
+                         textSize2=12,
+                         ch=0):
 
     btn = Button(
         parent=parent,
@@ -44,7 +45,7 @@ def create_button(parent,
         buttonType=type
     )
 
-    btn.messages.extend(midi_note_bang(note, send=True, receive=(type==ButtonType.TOGGLE_PRESS)))
+    btn.messages.extend(midi_note_bang(note, ch=ch, send=True, receive=(type==ButtonType.TOGGLE_PRESS)))
 
     if label is not None:
         lb = Label(
@@ -159,3 +160,12 @@ def create_fader(parent, name, frame=Rect(x=0, y=0, w=60, h=350), color=ColorEnu
         fd.messages.extend(midi_fader(note, ch))
 
     return fd
+
+def create_cc_fader(parent, name, cc, ch=0, frame=Rect(x=0, y=0, w=60, h=350), color=ColorEnum.GREY):
+    fd = create_fader(parent, name, frame=frame, color=color)
+    fd.messages.extend(midi_cc_fader(cc, ch))
+    return fd
+
+def create_cc_encoder(parent, name, cc, frame=Rect(x=0, y=0, w=100, h=100), color=ColorEnum.GREY):
+    enc = create_encoder(parent, name, frame=frame, color=color, cc=cc)
+    return enc
